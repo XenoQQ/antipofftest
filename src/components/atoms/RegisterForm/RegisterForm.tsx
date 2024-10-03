@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { styled, css } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { styled } from 'styled-components';
+
 import { AppDispatch, RootState } from '../../features/TeamList/store/store';
 import { registerUser } from '../../features/TeamList/store/authSlice';
 import { cleanError } from '../../features/TeamList/store/authSlice';
 
 import { ReactComponent as ShowIcon } from '../../../assets/ShowIcon.svg';
-
 import { ReactComponent as ShowIconOverline } from '../../../assets/ShowIconOverline.svg';
 
 const Wrapper = styled.div`
@@ -18,36 +18,34 @@ const Wrapper = styled.div`
 
     display: flex;
     flex-direction: column;
+    width: 468px;
+    min-height: 487px;
 
-    box-sizing: border-box;
-    width: 500px;
-    min-height: 500px;
-
-    margin: 0 auto;
     padding: 16px;
-    gap: 24px;
 
     border-radius: 16px;
     box-shadow: 0px 4px 20px 0px #00000014;
+
+    @media (max-width: 768px) {
+        top: 64px;
+        left: 0;
+        transform: translate(0, 0);
+
+        box-sizing: border-box;
+        width: 100%;
+
+        padding: 16px;
+    }
 `;
 
 const FormWrapper = styled.div`
     position: relative;
 
-    display: flex;
-    flex-direction: column;
-
-    box-sizing: border-box;
-    width: 468px;
-    min-height: 400px;
-
-    justify-content: space-between;
-    align-items: flex-start;
+    width: 100%;
+    min-height: 415px;
 `;
 
-const Title = styled.h2`
-    position: relative;
-
+const FormTitle = styled.h2`
     width: 100%;
     height: 23px;
 
@@ -62,13 +60,11 @@ const Title = styled.h2`
     align-self: flex-start;
 `;
 
-const Field = styled.div`
-    position: relative;
-
-    box-sizing: border-box;
+const FieldWrapper = styled.div`
     display: flex;
-    flex-direction: column;
-    width: 468px;
+    flex-wrap: wrap;
+
+    width: 100%;
     min-height: 78px;
 
     margin-top: 16px;
@@ -76,6 +72,7 @@ const Field = styled.div`
 
 const FieldTitle = styled.div`
     display: flex;
+    width: 100%;
     height: 22px;
 
     font-family: 'Roboto', sans-serif;
@@ -89,7 +86,7 @@ const FieldTitle = styled.div`
 const FieldInputWrapper = styled.div`
     display: flex;
 
-    width: 468px;
+    width: 100%;
     height: 48px;
 
     margin-top: 8px;
@@ -101,10 +98,31 @@ const FieldInputWrapper = styled.div`
     align-items: center;
 `;
 
+const EmailInputWrapper = styled.div<{ $isvalid: string }>`
+    display: flex;
+
+    width: 100%;
+    height: 48px;
+
+    margin-top: 8px;
+
+    background-color: #f8f8f8;
+    border-radius: 8px;
+
+    justify-content: space-between;
+    align-items: center;
+
+    ${({ $isvalid }) =>
+        $isvalid !== ''
+            ? css`
+                  box-shadow: 0 0 0 1px #ff6161;
+              `
+            : css``}
+`;
+
 const FieldInput = styled.input`
     display: flex;
     height: 16px;
-    min-width: 412px;
 
     margin: 16px 8px 16px 16px;
 
@@ -116,6 +134,7 @@ const FieldInput = styled.input`
     color: #808185;
 
     border: none;
+
     justify-content: flex-start;
     align-items: center;
 
@@ -133,13 +152,17 @@ const SubmitButton = styled.button`
     background-color: #512689;
     border-radius: 8px;
 
-    color: white;
+    margin-top: 24px;
+
     font-family: 'Roboto', sans-serif;
-    font-size: 14px;
     font-weight: 400;
+    font-size: 14px;
+    color: white;
 
     justify-content: center;
     align-items: center;
+
+    cursor: pointer;
 `;
 
 const SubmitButtonTitle = styled.div`
@@ -147,33 +170,17 @@ const SubmitButtonTitle = styled.div`
     width: 156px;
     height: 22px;
 
-    color: white;
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     font-size: 16px;
+    color: white;
 
     align-items: center;
     justify-content: center;
 `;
 
-const ErrorBox = styled.div`
-    height: 12px;
-
-    margin-top: 4px;
-
-    color: #ff6161;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 400;
-    font-size: 10px;
-`;
-
 const LoginNote = styled.div`
-    bottom: 10px;
-
-    margin: -10px auto 0 auto;
-
-    width: auto;
-    height: auto;
+    margin: 10px 0 0 0;
 
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
@@ -187,8 +194,53 @@ const LoginNote = styled.div`
     cursor: pointer;
 `;
 
+const SauronEye = styled.div`
+    position: relative;
+    right: 8px;
+
+    height: 24px;
+    width: 24px;
+
+    cursor: pointer;
+`;
+
+const IconWrapper = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    height: 24px;
+    width: 24px;
+
+    justify-content: center;
+    align-items: center;
+`;
+
+const ErrorBoxEmail = styled.div`
+    height: 12px;
+
+    margin-top: 4px;
+
+    color: #ff6161;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+`;
+
+const ErrorBoxAuth = styled.div`
+    position: absolute;
+    bottom: -14px;
+
+    height: 12px;
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+    color: #ff6161;
+`;
+
 const Note = styled.div`
-    z-index: 9999;
     position: absolute;
     right: -350px;
 
@@ -204,29 +256,10 @@ const Note = styled.div`
 
     border-radius: 16px;
     box-shadow: 0px 4px 20px 0px #00000014;
-`;
 
-const SauronEye = styled.div`
-    position: relative;
-    right: 12px;
-
-    height: 24px;
-    width: 24px;
-
-    cursor: pointer;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 24px;
-    width: 24px;
-
-    justify-content: center;
-    align-items: center;
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const RegisterForm: React.FC = () => {
@@ -234,18 +267,18 @@ const RegisterForm: React.FC = () => {
     const [email, setEmail] = useState<string>('eve.holt@reqres.in');
     const [pass1, setPass1] = useState<string>('pistol');
     const [pass1visible, setPass1Visible] = useState<boolean>(false);
-    const [pass2visible, setPass2Visible] = useState<boolean>(false);
     const [pass2, setPass2] = useState<string>('pistol');
+    const [pass2visible, setPass2Visible] = useState<boolean>(false);
+
+    const error = useSelector((state: RootState) => state.auth.error);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
 
     const isValidEmail = (email: string): string => {
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailPattern.test(email) ? '' : 'Некорректный email';
     };
-
-    const navigate = useNavigate();
-    const dispatch = useDispatch<AppDispatch>();
-
-    const error = useSelector((state: RootState) => state.auth.error);
 
     const handleSubmit = async () => {
         const resultAction = await dispatch(registerUser({ email, password: pass2 }));
@@ -257,8 +290,9 @@ const RegisterForm: React.FC = () => {
 
     const handleLoginRoute = () => {
         dispatch(cleanError());
-        navigate('../');
+        navigate('../login');
     };
+
     return (
         <Wrapper>
             <Note>
@@ -268,21 +302,21 @@ const RegisterForm: React.FC = () => {
                 сразу же используется для логина.
             </Note>
             <FormWrapper>
-                <Title>Регистрация</Title>
-                <Field>
+                <FormTitle>Регистрация</FormTitle>
+                <FieldWrapper>
                     <FieldTitle>Имя</FieldTitle>
                     <FieldInputWrapper>
                         <FieldInput type="text" value={name} onChange={(e) => setName(e.target.value)}></FieldInput>
                     </FieldInputWrapper>
-                </Field>
-                <Field>
+                </FieldWrapper>
+                <FieldWrapper>
                     <FieldTitle>Электронная почта</FieldTitle>
-                    <FieldInputWrapper>
+                    <EmailInputWrapper $isvalid={isValidEmail(email)}>
                         <FieldInput type="text" value={email} onChange={(e) => setEmail(e.target.value)}></FieldInput>
-                    </FieldInputWrapper>
-                    <ErrorBox>{isValidEmail(email)}</ErrorBox>
-                </Field>
-                <Field>
+                    </EmailInputWrapper>
+                </FieldWrapper>
+                <ErrorBoxEmail>{isValidEmail(email)}</ErrorBoxEmail>
+                <FieldWrapper>
                     <FieldTitle>Пароль</FieldTitle>
                     <FieldInputWrapper>
                         <FieldInput
@@ -301,8 +335,8 @@ const RegisterForm: React.FC = () => {
                             )}
                         </SauronEye>
                     </FieldInputWrapper>
-                </Field>
-                <Field>
+                </FieldWrapper>
+                <FieldWrapper>
                     <FieldTitle>Подтвердите пароль</FieldTitle>
                     <FieldInputWrapper>
                         <FieldInput
@@ -319,10 +353,10 @@ const RegisterForm: React.FC = () => {
                                     <ShowIconOverline />
                                 </IconWrapper>
                             )}
-                        </SauronEye>{' '}
+                        </SauronEye>
                     </FieldInputWrapper>
-                    <ErrorBox>{error}</ErrorBox>
-                </Field>
+                    <ErrorBoxAuth>{error}</ErrorBoxAuth>
+                </FieldWrapper>
             </FormWrapper>
             <SubmitButton onClick={() => handleSubmit()}>
                 <SubmitButtonTitle>Зарегистрироваться</SubmitButtonTitle>

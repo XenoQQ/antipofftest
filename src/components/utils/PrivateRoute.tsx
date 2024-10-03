@@ -13,11 +13,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ component: Component }) => 
 
     console.log('LocalToken: ', localToken, 'ReduxToken: ', reduxToken);
 
-    const isTokenExist = () => {
-        return reduxToken || localToken;
-    };
-
-    return isTokenExist() ? <Component /> : <Navigate to="/login" />;
+    return reduxToken || localToken  ? <Component /> : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

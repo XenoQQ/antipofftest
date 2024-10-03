@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { MembersListData } from '../../../atoms/MembersList/types';
-import { MemberData } from '../../../atoms/MemberItem/types';
+
+import { MemberData } from '../../../atoms/MemberItem/MemberItem';
 
 import axios from 'axios';
 
@@ -9,9 +9,17 @@ interface MembersRequest {
     perPage: number;
 }
 
+export interface MembersListData {
+    data: MemberData[];
+    page: number | null;
+    per_page: number | null;
+    total: number | null;
+    total_pages: number | null;
+}
+
 export const fetchMembers = createAsyncThunk<MembersListData, MembersRequest, { rejectValue: string }>(
     'membersList/fetchMembers',
-    async ({page, perPage}, { rejectWithValue }) => {
+    async ({ page, perPage }, { rejectWithValue }) => {
         try {
             const response = await axios.get(`https://reqres.in/api/users?page=${page}&per_page=${perPage}`);
             return response.data as MembersListData;
@@ -20,6 +28,7 @@ export const fetchMembers = createAsyncThunk<MembersListData, MembersRequest, { 
         }
     },
 );
+
 
 interface MembersListState {
     members: MembersListData | null;

@@ -1,8 +1,22 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+
 import { login, register } from '../../../../api/authApi';
-import { Credentials } from '../../../atoms/LoginForm/types';
-import { RegisterResponse } from '../../../atoms/RegisterForm/types';
+
 import { AppDispatch } from './store';
+
+export interface Credentials {
+    email: string;
+    password: string;
+}
+
+export interface LoginResponse {
+    token: string;
+}
+
+export interface RegisterResponse {
+    id: string;
+    token: string;
+}
 
 export const loginUser = createAsyncThunk<string, Credentials, { rejectValue: string }>(
     'auth/loginUser',

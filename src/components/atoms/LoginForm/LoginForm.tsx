@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { styled } from 'styled-components';
+import { styled, css } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { cleanError, loginUser } from '../../features/TeamList/store/authSlice';
-import { AppDispatch, RootState } from '../../features/TeamList/store/store';
 import { useNavigate } from 'react-router-dom';
 
-import { ReactComponent as ShowIcon } from '../../../assets/ShowIcon.svg';
+import { AppDispatch, RootState } from '../../features/TeamList/store/store';
+import { cleanError, loginUser } from '../../features/TeamList/store/authSlice';
 
+import { ReactComponent as ShowIcon } from '../../../assets/ShowIcon.svg';
 import { ReactComponent as ShowIconOverline } from '../../../assets/ShowIconOverline.svg';
 
 const Wrapper = styled.form`
@@ -18,35 +18,34 @@ const Wrapper = styled.form`
     display: flex;
     flex-direction: column;
 
-    box-sizing: border-box;
-    width: 500px;
+    width: 468px;
     min-height: 200px;
 
-    margin: 0 auto;
     padding: 16px;
-    gap: 24px;
 
     border-radius: 16px;
     box-shadow: 0px 4px 20px 0px #00000014;
+
+    @media (max-width: 768px) {
+        top: 64px;
+        left: 0;
+        transform: translate(0, 0);
+
+        box-sizing: border-box;
+        width: 100vw;
+
+        padding: 16px;
+    }
 `;
 
 const FormWrapper = styled.div`
     position: relative;
 
-    display: flex;
-    flex-direction: column;
-
-    box-sizing: border-box;
-    width: 468px;
+    width: 100%;
     min-height: 200px;
-
-    justify-content: space-between;
-    align-items: flex-start;
 `;
 
-const Title = styled.h2`
-    position: relative;
-
+const FormTitle = styled.h2`
     width: 100%;
     height: 23px;
 
@@ -61,13 +60,11 @@ const Title = styled.h2`
     align-self: flex-start;
 `;
 
-const Field = styled.div`
-    position: relative;
-
-    box-sizing: border-box;
+const FieldWrapper = styled.div`
     display: flex;
-    flex-direction: column;
-    width: 468px;
+    flex-wrap: wrap;
+
+    width: 100%;
     min-height: 78px;
 
     margin-top: 16px;
@@ -75,6 +72,7 @@ const Field = styled.div`
 
 const FieldTitle = styled.div`
     display: flex;
+    width: 100%;
     height: 22px;
 
     font-family: 'Roboto', sans-serif;
@@ -87,8 +85,7 @@ const FieldTitle = styled.div`
 
 const FieldInputWrapper = styled.div`
     display: flex;
-    box-sizing: border-box;
-    width: 468px;
+    width: 100%;
     height: 48px;
 
     margin-top: 8px;
@@ -100,10 +97,30 @@ const FieldInputWrapper = styled.div`
     align-items: center;
 `;
 
+const EmailInputWrapper = styled.div<{ $isvalid: string }>`
+    display: flex;
+    width: 100%;
+    height: 48px;
+
+    margin-top: 8px;
+
+    background-color: #f8f8f8;
+    border-radius: 8px;
+
+    justify-content: space-between;
+    align-items: center;
+
+    ${({ $isvalid }) =>
+        $isvalid !== ''
+            ? css`
+                  box-shadow: 0 0 0 1px #ff6161;
+              `
+            : css``}
+`;
+
 const FieldInput = styled.input`
     display: flex;
     height: 16px;
-    min-width: 412px;
 
     margin: 16px 8px 16px 16px;
 
@@ -124,29 +141,6 @@ const FieldInput = styled.input`
     }
 `;
 
-const SauronEye = styled.div`
-    position: relative;
-    right: 12px;
-
-    height: 24px;
-    width: 24px;
-
-    cursor: pointer;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 24px;
-    width: 24px;
-
-    justify-content: center;
-    align-items: center;
-`;
-
 const SubmitButton = styled.button`
     display: flex;
     width: 100%;
@@ -155,10 +149,12 @@ const SubmitButton = styled.button`
     background-color: #512689;
     border-radius: 8px;
 
-    color: #f8f8f8;
+    margin-top: 24px;
+
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
     font-weight: 400;
+    color: white;
 
     justify-content: center;
     align-items: center;
@@ -180,13 +176,8 @@ const SubmitButtonTitle = styled.div`
     justify-content: center;
 `;
 
-const RegisterNote = styled.div`
-    bottom: 10px;
-
-    margin: -10px auto 0 auto;
-
-    width: auto;
-    height: auto;
+const RegisteredNote = styled.div`
+    margin: 10px 0 0 0;
 
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
@@ -200,10 +191,43 @@ const RegisterNote = styled.div`
     cursor: pointer;
 `;
 
-const ErrorBox = styled.div`
+const SauronEye = styled.div`
+    position: relative;
+    right: 8px;
+
+    width: 24px;
+    height: 24px;
+
+    cursor: pointer;
+`;
+
+const IconWrapper = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    height: 24px;
+    width: 24px;
+
+    justify-content: center;
+    align-items: center;
+`;
+
+const ErrorBoxEmail = styled.div`
+    height: 12px;
+
+    margin-top: 4px;
+
+    color: #ff6161;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+`;
+
+const ErrorBoxAuth = styled.div`
     position: absolute;
     height: 12px;
-    left: 5px;
     bottom: -14px;
 
     color: #ff6161;
@@ -229,6 +253,10 @@ const Note = styled.div`
 
     border-radius: 16px;
     box-shadow: 0px 4px 20px 0px #00000014;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const LoginForm: React.FC = () => {
@@ -238,13 +266,13 @@ const LoginForm: React.FC = () => {
 
     const error = useSelector((state: RootState) => state.auth.error);
 
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+
     const isValidEmail = (email: string): string => {
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailPattern.test(email) ? '' : 'Некорректный email';
     };
-
-    const dispatch = useDispatch<AppDispatch>();
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -260,6 +288,7 @@ const LoginForm: React.FC = () => {
         navigate('../register');
     };
 
+    
     return (
         <Wrapper onSubmit={handleSubmit}>
             <Note>
@@ -270,15 +299,15 @@ const LoginForm: React.FC = () => {
                 регистрации внизу, как это обычно делается.
             </Note>
             <FormWrapper>
-                <Title>Вход</Title>
-                <Field>
+                <FormTitle>Вход</FormTitle>
+                <FieldWrapper>
                     <FieldTitle>Электронная почта</FieldTitle>
-                    <FieldInputWrapper>
+                    <EmailInputWrapper $isvalid={isValidEmail(email)}>
                         <FieldInput type="text" value={email} onChange={(e) => setEmail(e.target.value)}></FieldInput>
-                    </FieldInputWrapper>
-                    <ErrorBox>{isValidEmail(email)}</ErrorBox>
-                </Field>
-                <Field>
+                    </EmailInputWrapper>
+                </FieldWrapper>
+                <ErrorBoxEmail>{isValidEmail(email)}</ErrorBoxEmail>
+                <FieldWrapper>
                     <FieldTitle>Пароль</FieldTitle>
                     <FieldInputWrapper>
                         <FieldInput
@@ -296,14 +325,14 @@ const LoginForm: React.FC = () => {
                                 </IconWrapper>
                             )}
                         </SauronEye>
-                        <ErrorBox>{error}</ErrorBox>
+                        <ErrorBoxAuth>{error}</ErrorBoxAuth>
                     </FieldInputWrapper>
-                </Field>
+                </FieldWrapper>
             </FormWrapper>
             <SubmitButton type="submit">
                 <SubmitButtonTitle>Войти</SubmitButtonTitle>
             </SubmitButton>
-            <RegisterNote onClick={() => handleRegisterRoute()}>Нет аккаунта? Создать аккаунт</RegisterNote>
+            <RegisteredNote onClick={() => handleRegisterRoute()}>Нет аккаунта? Создать аккаунт</RegisteredNote>
         </Wrapper>
     );
 };

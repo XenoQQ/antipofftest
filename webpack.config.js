@@ -17,6 +17,20 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.svg$/,
+                use: [
+                    '@svgr/webpack',
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[hash].[ext]',
+                            outputPath: 'assets/',
+                            publicPath: 'assets/',
+                        },
+                    },
+                ],
+            },
+            {
                 test: /\.(ts|tsx)$/,
                 exclude: /node_modules/,
                 use: 'ts-loader',
@@ -31,22 +45,17 @@ module.exports = {
                 use: ['style-loader', 'css-loader'],
             },
             {
-                test: /\.(png|jpe?g|gif|svg)$/i,
+                test: /\.(png|jpe?g|gif)$/i,
                 use: [
                     {
                         loader: 'file-loader',
                         options: {
-                            name: '[path][name].[ext]',
+                            name: '[name].[ext]',
                             outputPath: 'static/',
-                            publicPath: 'static/',
+                            publicPath: './static/',
                         },
                     },
                 ],
-            },
-            {
-                test: /\.svg$/,
-                issuer: /\.[jt]sx?$/, 
-                use: ['@svgr/webpack'],
             },
         ],
     },
@@ -57,7 +66,8 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: './src/index.html',
-            filename: 'index.html',
+            inject: 'body',
+            scriptLoading: 'defer',
         }),
         new ESLintPlugin({
             extensions: ['js', 'jsx', 'ts', 'tsx'],

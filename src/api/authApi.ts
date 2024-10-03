@@ -1,11 +1,9 @@
 import axios from 'axios';
 
-import { Credentials, LoginResponse } from '../components/atoms/LoginForm/types';
-import { RegisterResponse } from '../components/atoms/RegisterForm/types';
+import { Credentials, LoginResponse } from '../components/features/TeamList/store/authSlice';
+import { RegisterResponse } from '../components/features/TeamList/store/authSlice';
 
 const API_URL = 'https://reqres.in/api';
-
-
 
 export const login = async (credentials: Credentials): Promise<LoginResponse> => {
     const response = await axios.post(`${API_URL}/login`, credentials);
@@ -14,5 +12,5 @@ export const login = async (credentials: Credentials): Promise<LoginResponse> =>
 
 export const register = async (credentials: Credentials): Promise<RegisterResponse> => {
     const response = await axios.post(`${API_URL}/register`, credentials);
-    return response.data
-}
+    return response.data;
+};

@@ -5,7 +5,7 @@ import App from './App';
 import { Normalize } from 'styled-normalize';
 import { Provider } from 'react-redux';
 import store from './components/features/TeamList/store/store';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -15,9 +15,9 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
     <Provider store={store}>
-        <BrowserRouter>
+        <HashRouter>
             <Normalize />
             <App />
-        </BrowserRouter>
+        </HashRouter>
     </Provider>
 );
