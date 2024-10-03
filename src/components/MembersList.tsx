@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { styled } from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { AppDispatch } from '../../features/TeamList/store/store';
-import { fetchMembers } from '../../features/TeamList/store/membersSlice';
-import { logout } from '../../features/TeamList/store/authSlice';
+import { AppDispatch } from './store/store';
+import { fetchMembers } from './store/membersSlice';
+import { logout } from './store/authSlice';
 
-import { ReactComponent as MoreIcon } from '../../../assets/MoreIcon.svg';
-import { ReactComponent as ExitIcon } from '../../../assets/ExitIcon.svg';
+import { ReactComponent as MoreIcon } from '../assets/MoreIcon.svg';
+import { ReactComponent as ExitIcon } from '../assets/ExitIcon.svg';
 
-import MemberItem, { MemberData } from '../MemberItem/MemberItem';
+import MemberItem, { MemberData } from './MemberItem';
 
 const Wrapper = styled.div`
     position: relative;
@@ -123,6 +123,10 @@ const ExitButton = styled.button`
     align-items: center;
 
     cursor: pointer;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const ExitIconWrapper = styled.div`
@@ -138,6 +142,10 @@ const ExitIconWrapper = styled.div`
     align-items: center;
 
     cursor: pointer;
+
+    @media (min-width: 768px) {
+        display: none;
+    }
 `;
 
 const MembersWrapper = styled.div`
@@ -149,6 +157,7 @@ const MembersWrapper = styled.div`
     min-height: 546px;
 
     margin-top: 48px;
+    margin-bottom: 56px;
 
     @media (max-width: 768px) {
         min-width: 0px;
@@ -171,7 +180,7 @@ const MoreButton = styled.div`
     min-height: 40px;
 
     padding: 8px 16px 8px 16px;
-    margin-top: 56px;
+
     margin-bottom: 64px;
 
     border: 1px solid #151317;
@@ -192,22 +201,80 @@ const MoreButton = styled.div`
     }
 `;
 
+const NoteButton = styled.button`
+    position: absolute;
+    top: 32px;
+    right: 170px;
+
+    display: flex;
+    min-width: 81px;
+    min-height: 38px;
+
+    background-color: transparent;
+    border: 1px solid #f8f8f8;
+    border-radius: 8px;
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: #f8f8f8;
+
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+`;
+
+const Note = styled.div`
+    z-index: 9999;
+    position: absolute;
+    top: 80px;
+    right: 170px;
+
+    width: 300px;
+    height: auto;
+
+    padding: 10px;
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    color: black;
+    font-size: 12px;
+
+    border-radius: 16px;
+
+    box-shadow: 0px 4px 20px 0px #00000014;
+
+    background-color: #ffffff;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+`;
+
 const MembersList: React.FC = () => {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [noteVisible, setNoteVisible] = useState(false);
+    const [totalMembers, setTotalMembers] = useState(0);
+    const [page, setPage] = useState(1);
+    const [allMembers, setAllMembers] = useState<MemberData[]>([]);
 
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
-    const [page, setPage] = useState<number>(1);
-    const [allMembers, setAllMembers] = useState<MemberData[]>([]);
-
     useEffect(() => {
-        dispatch(fetchMembers({ page, perPage: isMobile ? 4 : 8 }))
+        dispatch(fetchMembers({ page }))
             .unwrap()
             .then((data) => {
                 setAllMembers((prev) => [...prev, ...data.data]);
+                setTotalMembers(data.total);
             });
-    }, [dispatch, page, isMobile]);
+    }, [dispatch, page]);
+
+    const moreButtonVisible = allMembers.length < totalMembers;
 
     const loadMore = () => {
         setPage((prevPage) => prevPage + 1);
@@ -223,7 +290,7 @@ const MembersList: React.FC = () => {
         return savedLikes ? JSON.parse(savedLikes) : [];
     });
 
-    const handleLike = (id: number) => {
+    const handleLike = useCallback((id: number) => {
         setLikedMembers((prev) => {
             let updatedLikes;
             if (prev.includes(id)) {
@@ -235,6 +302,10 @@ const MembersList: React.FC = () => {
             sessionStorage.setItem('likedMembers', JSON.stringify(updatedLikes));
             return updatedLikes;
         });
+    }, []);
+
+    const openNote = () => {
+        setNoteVisible((prevstate) => !prevstate);
     };
 
     return (
@@ -247,12 +318,11 @@ const MembersList: React.FC = () => {
                         умеющие находить выход из любых, даже самых сложных ситуаций.
                     </HeaderContent>
                 </HeaderContentWrapper>
-                {!isMobile && <ExitButton onClick={() => handleExit()}>Выход</ExitButton>}
-                {isMobile && (
-                    <ExitIconWrapper onClick={() => handleExit()}>
-                        <ExitIcon />
-                    </ExitIconWrapper>
-                )}
+                <ExitButton onClick={handleExit}>Выход</ExitButton>
+
+                <ExitIconWrapper onClick={handleExit}>
+                    <ExitIcon />
+                </ExitIconWrapper>
             </Header>
             <MembersWrapper>
                 {allMembers?.map((member) => (
@@ -268,10 +338,23 @@ const MembersList: React.FC = () => {
                     />
                 ))}
             </MembersWrapper>
-            <MoreButton onClick={loadMore}>
-                Показать ещё
-                <MoreIcon />
-            </MoreButton>
+            {moreButtonVisible && (
+                <MoreButton onClick={loadMore}>
+                    Показать ещё
+                    <MoreIcon />
+                </MoreButton>
+            )}
+            <NoteButton onClick={openNote}>Примечание</NoteButton>
+            {noteVisible && (
+                <Note>
+                    API имеет в базе всего 12 пользователей, а кнопка скрывается если данные на сервере закончились, но
+                    подгрузка чанков реализована универсально для любого количества пользователей.
+                    <br />
+                    <br />
+                    Так же я хотел реализовать пагинацию, в целом я понимаю суть работы query для страницы и реализации
+                    пагинации, но для базы в 12 юзеров она бы выглядела как просто переключение между двумя страницами.
+                </Note>
+            )}
         </Wrapper>
     );
 };

@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
 
-import { ReactComponent as LikeIcon } from '../../../assets/LikeIcon.svg';
-import { ReactComponent as LikeIconActive } from '../../../assets/LikeIconActive.svg';
+import { ReactComponent as LikeIcon } from '../assets/LikeIcon.svg';
+import { ReactComponent as LikeIconActive } from '../assets/LikeIconActive.svg';
 import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.div`
@@ -20,6 +20,8 @@ const Wrapper = styled.div`
     &:hover {
         box-shadow: 0 0 0 1px #000000;
     }
+
+    cursor: pointer;
 `;
 
 const MemberPic = styled.img`
@@ -29,8 +31,6 @@ const MemberPic = styled.img`
     margin-top: 36px;
 
     border-radius: 100px;
-
-    cursor: pointer;
 `;
 
 const MemberName = styled.div`
@@ -45,8 +45,6 @@ const MemberName = styled.div`
     color: #151317;
 
     text-align: center;
-
-    cursor: pointer;
 `;
 
 const LikeWrapper = styled.div`
@@ -61,6 +59,8 @@ const LikeWrapper = styled.div`
 `;
 
 const LikeIconWrapper = styled.div`
+    z-index: 9999;
+
     display: flex;
     width: 30px;
     height: 28px;
@@ -91,11 +91,18 @@ const MemberItem: React.FC<MemberData> = ({ id, email, first_name, last_name, av
         navigate(`/members/${id}`);
     };
     return (
-        <Wrapper>
-            <MemberPic onClick={() => onClick()} src={avatar} />
-            <MemberName onClick={() => onClick()}>{first_name + ' ' + last_name}</MemberName>
+        <Wrapper onClick={onClick}>
+            <MemberPic src={avatar} />
+            <MemberName>{first_name + ' ' + last_name}</MemberName>
             <LikeWrapper>
-                <LikeIconWrapper onClick={onLike}>{isLiked ? <LikeIconActive /> : <LikeIcon />}</LikeIconWrapper>
+                <LikeIconWrapper
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onLike();
+                    }}
+                >
+                    {isLiked ? <LikeIconActive /> : <LikeIcon />}
+                </LikeIconWrapper>
             </LikeWrapper>
         </Wrapper>
     );

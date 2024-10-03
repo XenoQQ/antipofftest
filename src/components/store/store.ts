@@ -5,9 +5,8 @@ import membersSlice from './membersSlice';
 const store = configureStore({
     reducer: {
         auth: authSlice,
-        members: membersSlice
+        members: membersSlice,
     },
-
 });
 
 export type AppDispatch = typeof store.dispatch;

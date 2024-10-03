@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { styled } from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
-import { AppDispatch } from '../../features/TeamList/store/store';
-import { logout } from '../../features/TeamList/store/authSlice';
-import { MemberData } from '../MemberItem/MemberItem';
+import { AppDispatch } from './store/store';
+import { logout } from './store/authSlice';
+import { MemberData } from './MemberItem';
 
-import { ReactComponent as ExitIcon } from '../../../assets/ExitIcon.svg';
-import { ReactComponent as BackIcon } from '../../../assets/BackIcon.svg';
-import { ReactComponent as PhoneIcon } from '../../../assets/PhoneIcon.svg';
-import { ReactComponent as EmailIcon } from '../../../assets/EmailIcon.svg';
+import { ReactComponent as ExitIcon } from '../assets/ExitIcon.svg';
+import { ReactComponent as BackIcon } from '../assets/BackIcon.svg';
+import { ReactComponent as PhoneIcon } from '../assets/PhoneIcon.svg';
+import { ReactComponent as EmailIcon } from '../assets/EmailIcon.svg';
 
 const Wrapper = styled.div`
     position: relative;
@@ -258,6 +258,10 @@ const ExitButton = styled.button`
     align-items: center;
 
     cursor: pointer;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const BackButton = styled.button`
@@ -282,6 +286,10 @@ const BackButton = styled.button`
     align-items: center;
 
     cursor: pointer;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const BackIconWrapper = styled.div`
@@ -297,6 +305,10 @@ const BackIconWrapper = styled.div`
     align-items: center;
 
     cursor: pointer;
+
+    @media (min-width: 768px) {
+        display: none;
+    }
 `;
 
 const ExitIconWrapper = styled.div`
@@ -312,16 +324,78 @@ const ExitIconWrapper = styled.div`
     align-items: center;
 
     cursor: pointer;
+
+    @media (min-width: 768px) {
+        display: none;
+    }
+`;
+
+const NoteButton = styled.button`
+    position: absolute;
+    top: 32px;
+    right: 170px;
+
+    display: flex;
+    min-width: 81px;
+    min-height: 38px;
+
+    background-color: transparent;
+    border: 1px solid #f8f8f8;
+    border-radius: 8px;
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: #f8f8f8;
+
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+`;
+
+const Note = styled.div`
+    z-index: 9999;
+    position: absolute;
+    top: 80px;
+    right: 170px;
+
+    width: 300px;
+    height: auto;
+
+    padding: 10px;
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    color: black;
+    font-size: 12px;
+
+    border-radius: 16px;
+
+    box-shadow: 0px 4px 20px 0px #00000014;
+
+    background-color: #ffffff;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const MemberDetails: React.FC = () => {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [noteVisible, setNoteVisible] = useState(false);
+    const [member, setMember] = useState<MemberData | null>(null);
+    const [uploadedAvatar, setUploadedAvatar] = useState<string | null>(null);
+
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     const { id } = useParams<{ id: string }>();
-    const [member, setMember] = useState<MemberData | null>(null);
 
     useEffect(() => {
         const fetchMember = async () => {
@@ -345,29 +419,56 @@ const MemberDetails: React.FC = () => {
     const handleBack = () => {
         navigate('/');
     };
+
+    const openNote = () => {
+        setNoteVisible((prevstate) => !prevstate);
+    };
+
+    const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setUploadedAvatar(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAvatarClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
     return (
         <Wrapper>
             <Header>
                 <HeaderContentWrapper>
-                    <MemberPic src={member?.avatar} />
+                    <MemberPic src={uploadedAvatar || member?.avatar} onClick={handleAvatarClick} />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleAvatarUpload}
+                        style={{ display: 'none' }}
+                    />
                     <MemberInfoWrapper>
                         <MemberName>{member?.first_name + ' ' + member?.last_name}</MemberName>
                         <MemberType>Партнер</MemberType>
                     </MemberInfoWrapper>
                 </HeaderContentWrapper>
-                {!isMobile && <BackButton onClick={() => handleBack()}>Назад</BackButton>}
-                {isMobile && (
-                    <BackIconWrapper onClick={() => handleBack()}>
-                        <BackIcon />
-                    </BackIconWrapper>
-                )}
+                <BackButton onClick={handleBack}>Назад</BackButton>
 
-                {!isMobile && <ExitButton onClick={() => handleExit()}>Выход</ExitButton>}
-                {isMobile && (
-                    <ExitIconWrapper onClick={() => handleExit()}>
-                        <ExitIcon />
-                    </ExitIconWrapper>
-                )}
+                <BackIconWrapper onClick={handleBack}>
+                    <BackIcon />
+                </BackIconWrapper>
+
+                <ExitButton onClick={handleExit}>Выход</ExitButton>
+
+                <ExitIconWrapper onClick={handleExit}>
+                    <ExitIcon />
+                </ExitIconWrapper>
             </Header>
             <MemberDescription>
                 Клиенты видят в нем эксперта по вопросам разработки комплексных решений финансовых продуктов, включая
@@ -395,9 +496,19 @@ const MemberDetails: React.FC = () => {
                     <IconWrapper>
                         <EmailIcon />
                     </IconWrapper>
-                    {member?.email}
+                    <a href={`mailto:${member?.email}`}>{member?.email}</a>
                 </ContactsEmail>
             </ContactsWrapper>
+            <NoteButton onClick={openNote}>Примечание</NoteButton>
+            {noteVisible && (
+                <Note>
+                    В API указаны только имя, аватарка, и email юзера, так что на место телефона и текста вписаны просто
+                    моки из макета.
+                    <br />
+                    <br />
+                    Подгрузка новой автарки происходит по клику по аватарке.
+                </Note>
+            )}
         </Wrapper>
     );
 };

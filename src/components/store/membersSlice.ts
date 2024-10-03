@@ -1,27 +1,26 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { MemberData } from '../../../atoms/MemberItem/MemberItem';
+import { MemberData } from '../MemberItem';
 
 import axios from 'axios';
 
 interface MembersRequest {
     page: number;
-    perPage: number;
 }
 
 export interface MembersListData {
     data: MemberData[];
-    page: number | null;
-    per_page: number | null;
-    total: number | null;
-    total_pages: number | null;
+    page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
 }
 
 export const fetchMembers = createAsyncThunk<MembersListData, MembersRequest, { rejectValue: string }>(
     'membersList/fetchMembers',
-    async ({ page, perPage }, { rejectWithValue }) => {
+    async ({ page }, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`https://reqres.in/api/users?page=${page}&per_page=${perPage}`);
+            const response = await axios.get(`https://reqres.in/api/users?page=${page}&per_page=8`);
             return response.data as MembersListData;
         } catch (error) {
             return rejectWithValue('Occured error when loading members data!');
@@ -29,11 +28,10 @@ export const fetchMembers = createAsyncThunk<MembersListData, MembersRequest, { 
     },
 );
 
-
 interface MembersListState {
     members: MembersListData | null;
     isLoading: boolean;
-    error: string | undefined | null;
+    error: string | null;
 }
 
 const initialState: MembersListState = {
@@ -42,7 +40,7 @@ const initialState: MembersListState = {
     error: null,
 };
 
-const authSlice = createSlice({
+const membersSlice = createSlice({
     name: 'members',
     initialState,
     reducers: {},
@@ -58,9 +56,9 @@ const authSlice = createSlice({
             })
             .addCase(fetchMembers.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = action.payload as string;
             });
     },
 });
 
-export default authSlice.reducer;
+export default membersSlice.reducer;

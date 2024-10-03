@@ -3,13 +3,14 @@ import { styled, css } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { AppDispatch, RootState } from '../../features/TeamList/store/store';
-import { cleanError, loginUser } from '../../features/TeamList/store/authSlice';
+import { AppDispatch, RootState } from './store/store';
+import { registerUser } from './store/authSlice';
+import { cleanError } from './store/authSlice';
 
-import { ReactComponent as ShowIcon } from '../../../assets/ShowIcon.svg';
-import { ReactComponent as ShowIconOverline } from '../../../assets/ShowIconOverline.svg';
+import { ReactComponent as ShowIcon } from '../assets/ShowIcon.svg';
+import { ReactComponent as ShowIconOverline } from '../assets/ShowIconOverline.svg';
 
-const Wrapper = styled.form`
+const Wrapper = styled.div`
     position: absolute;
     top: 50%;
     left: 50%;
@@ -17,9 +18,8 @@ const Wrapper = styled.form`
 
     display: flex;
     flex-direction: column;
-
     width: 468px;
-    min-height: 200px;
+    min-height: 487px;
 
     padding: 16px;
 
@@ -32,7 +32,7 @@ const Wrapper = styled.form`
         transform: translate(0, 0);
 
         box-sizing: border-box;
-        width: 100vw;
+        width: 100%;
 
         padding: 16px;
     }
@@ -42,7 +42,7 @@ const FormWrapper = styled.div`
     position: relative;
 
     width: 100%;
-    min-height: 200px;
+    min-height: 415px;
 `;
 
 const FormTitle = styled.h2`
@@ -85,6 +85,7 @@ const FieldTitle = styled.div`
 
 const FieldInputWrapper = styled.div`
     display: flex;
+
     width: 100%;
     height: 48px;
 
@@ -97,8 +98,9 @@ const FieldInputWrapper = styled.div`
     align-items: center;
 `;
 
-const EmailInputWrapper = styled.div<{ $isvalid: string }>`
+const EmailInputWrapper = styled.div<{ $isvalid: string | null }>`
     display: flex;
+
     width: 100%;
     height: 48px;
 
@@ -111,7 +113,7 @@ const EmailInputWrapper = styled.div<{ $isvalid: string }>`
     align-items: center;
 
     ${({ $isvalid }) =>
-        $isvalid !== ''
+        $isvalid
             ? css`
                   box-shadow: 0 0 0 1px #ff6161;
               `
@@ -132,6 +134,7 @@ const FieldInput = styled.input`
     color: #808185;
 
     border: none;
+
     justify-content: flex-start;
     align-items: center;
 
@@ -152,8 +155,8 @@ const SubmitButton = styled.button`
     margin-top: 24px;
 
     font-family: 'Roboto', sans-serif;
-    font-size: 14px;
     font-weight: 400;
+    font-size: 14px;
     color: white;
 
     justify-content: center;
@@ -167,16 +170,16 @@ const SubmitButtonTitle = styled.div`
     width: 156px;
     height: 22px;
 
-    color: #f8f8f8;
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     font-size: 16px;
+    color: white;
 
     align-items: center;
     justify-content: center;
 `;
 
-const RegisteredNote = styled.div`
+const LoginNote = styled.div`
     margin: 10px 0 0 0;
 
     font-family: 'Roboto', sans-serif;
@@ -195,8 +198,8 @@ const SauronEye = styled.div`
     position: relative;
     right: 8px;
 
-    width: 24px;
     height: 24px;
+    width: 24px;
 
     cursor: pointer;
 `;
@@ -227,17 +230,17 @@ const ErrorBoxEmail = styled.div`
 
 const ErrorBoxAuth = styled.div`
     position: absolute;
-    height: 12px;
     bottom: -14px;
 
-    color: #ff6161;
+    height: 12px;
+
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     font-size: 10px;
+    color: #ff6161;
 `;
 
 const Note = styled.div`
-    z-index: 9999;
     position: absolute;
     right: -350px;
 
@@ -259,47 +262,47 @@ const Note = styled.div`
     }
 `;
 
-const LoginForm: React.FC = () => {
-    const [email, setEmail] = useState<string>('eve.holt@reqres.in');
-    const [password, setPassword] = useState<string>('cityslicka');
-    const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+const RegisterForm: React.FC = () => {
+    const [name, setName] = useState('Username');
+    const [email, setEmail] = useState('eve.holt@reqres.in');
+    const [pass1, setPass1] = useState('pistol');
+    const [pass1visible, setPass1Visible] = useState(false);
+    const [pass2, setPass2] = useState('pistol');
+    const [pass2visible, setPass2Visible] = useState(false);
 
     const error = useSelector((state: RootState) => state.auth.error);
 
-    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
 
-    const isValidEmail = (email: string): string => {
+    const isValidEmail = (email: string): string | null => {
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return emailPattern.test(email) ? '' : 'Некорректный email';
+        return emailPattern.test(email) ? null : 'Некорректный email';
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const resultAction = await dispatch(loginUser({ email, password }));
+    const handleSubmit = async () => {
+        const resultAction = await dispatch(registerUser({ email, password: pass2 }));
 
-        if (loginUser.fulfilled.match(resultAction)) {
+        if (registerUser.fulfilled.match(resultAction)) {
             navigate('../');
         }
     };
 
-    const handleRegisterRoute = () => {
+    const handleLoginRoute = () => {
         dispatch(cleanError());
-        navigate('../register');
+        navigate('../login');
     };
 
-    
     return (
-        <Wrapper onSubmit={handleSubmit}>
-            <Note>
-                API позволяет вход только для этого пользователя (но с любым паролем, кроме пустого), по другим
-                вариантам токен не может быть получен, так что я подставил его по-умолчанию. Впрочем, форма корректно
-                работает и обрабатывает ошибку при выполнении некорректного запроса с другим логином. Так же в макете
-                вообще не было формы логина, так что я вынес вход и регистрацию в разные компоненты. Доступ к форме
-                регистрации внизу, как это обычно делается.
-            </Note>
+        <Wrapper>
             <FormWrapper>
-                <FormTitle>Вход</FormTitle>
+                <FormTitle>Регистрация</FormTitle>
+                <FieldWrapper>
+                    <FieldTitle>Имя</FieldTitle>
+                    <FieldInputWrapper>
+                        <FieldInput type="text" value={name} onChange={(e) => setName(e.target.value)}></FieldInput>
+                    </FieldInputWrapper>
+                </FieldWrapper>
                 <FieldWrapper>
                     <FieldTitle>Электронная почта</FieldTitle>
                     <EmailInputWrapper $isvalid={isValidEmail(email)}>
@@ -311,30 +314,56 @@ const LoginForm: React.FC = () => {
                     <FieldTitle>Пароль</FieldTitle>
                     <FieldInputWrapper>
                         <FieldInput
-                            type={passwordVisible ? 'text' : 'password'}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            type={pass1visible ? 'text' : 'password'}
+                            value={pass1}
+                            onChange={(e) => setPass1(e.target.value)}
                         ></FieldInput>
-                        <SauronEye onClick={() => setPasswordVisible((prevstate) => !prevstate)}>
+                        <SauronEye onClick={() => setPass1Visible((prevstate) => !prevstate)}>
                             <IconWrapper>
                                 <ShowIcon />
                             </IconWrapper>
-                            {!passwordVisible && (
+                            {!pass1visible && (
                                 <IconWrapper>
                                     <ShowIconOverline />
                                 </IconWrapper>
                             )}
                         </SauronEye>
-                        <ErrorBoxAuth>{error}</ErrorBoxAuth>
                     </FieldInputWrapper>
                 </FieldWrapper>
+                <FieldWrapper>
+                    <FieldTitle>Подтвердите пароль</FieldTitle>
+                    <FieldInputWrapper>
+                        <FieldInput
+                            type={pass2visible ? 'text' : 'password'}
+                            value={pass2}
+                            onChange={(e) => setPass2(e.target.value)}
+                        ></FieldInput>
+                        <SauronEye onClick={() => setPass2Visible((prevstate) => !prevstate)}>
+                            <IconWrapper>
+                                <ShowIcon />
+                            </IconWrapper>
+                            {!pass2visible && (
+                                <IconWrapper>
+                                    <ShowIconOverline />
+                                </IconWrapper>
+                            )}
+                        </SauronEye>
+                    </FieldInputWrapper>
+                    <ErrorBoxAuth>{error}</ErrorBoxAuth>
+                </FieldWrapper>
             </FormWrapper>
-            <SubmitButton type="submit">
-                <SubmitButtonTitle>Войти</SubmitButtonTitle>
+            <SubmitButton onClick={() => handleSubmit()}>
+                <SubmitButtonTitle>Зарегистрироваться</SubmitButtonTitle>
             </SubmitButton>
-            <RegisteredNote onClick={() => handleRegisterRoute()}>Нет аккаунта? Создать аккаунт</RegisteredNote>
+            <LoginNote onClick={() => handleLoginRoute()}>Уже зарегистрированы? Войти</LoginNote>
+            <Note>
+                API позволяет пройти регистрацию только с этим конкретным пользователем (но с любым паролем), так что он
+                был подставлен по-умолчанию. API принимает только логин\пароль, имя не участвует в запросе. В ответ по
+                корректному запросу приходит айди юзера, который нигде в данном макете не участвует, и токен, который
+                сразу же используется для логина.
+            </Note>
         </Wrapper>
     );
 };
 
-export default LoginForm;
+export default RegisterForm;

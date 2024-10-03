@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { Credentials, LoginResponse } from '../components/features/TeamList/store/authSlice';
-import { RegisterResponse } from '../components/features/TeamList/store/authSlice';
+import { Credentials, LoginResponse } from '../components/store/authSlice';
+import { RegisterResponse } from '../components/store/authSlice';
 
 const API_URL = 'https://reqres.in/api';
 

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
-import { login, register } from '../../../../api/authApi';
+import { login, register } from '../../api/authApi';
 
 import { AppDispatch } from './store';
 
@@ -55,7 +55,7 @@ export const checkToken = createAsyncThunk<void, void, { dispatch: AppDispatch }
 interface AuthState {
     token: string | null;
     isLoading: boolean;
-    error: string | undefined | null;
+    error: string | null;
 }
 
 const initialState: AuthState = {
@@ -94,7 +94,7 @@ const authSlice = createSlice({
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = action.payload as string;
             })
             .addCase(registerUser.pending, (state) => {
                 state.isLoading = true;
@@ -108,7 +108,7 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = action.payload as string;
             });
     },
 });
